@@ -5,7 +5,8 @@ from utils import DataLoader
 from autoencoder import AutoEncoder
 
 def main():
-    X_train = DataLoader.fileToNumpy("X_train_sat4.csv")
+    dl = DataLoader()
+    X_train = dl.fileToNumpy("X_train_sat4.csv")
     autoencoder = AutoEncoder()
     autoencoder.train(X_train)
     autoencoder.save("autoencoder.h5")

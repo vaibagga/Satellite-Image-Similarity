@@ -8,6 +8,7 @@ def main():
     X_train = DataLoader.fileToNumpy("X_train_sat4.csv")
     autoencoder = AutoEncoder()
     autoencoder.train(X_train)
+    autoencoder.save("autoencoder.h5")
 
 
 

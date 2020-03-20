@@ -20,16 +20,10 @@ class AutoEncoder:
         self.autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
 
     def train(self, X_train):
-        """
+        self.autoencoder.fit(X_train, X_train, epochs=100, verbose=1)
 
-        :param X_train: images array
-        :return:
-        """
-        self.model.fit(X_train, X_train)
-
-    def getEncoding(self, X):
-        encoded = None
-        return encoded
+    def saveModel(self, path):
+        self.autoencoder.save(path)
 
 
 def main():

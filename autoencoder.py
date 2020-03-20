@@ -16,7 +16,7 @@ class AutoEncoder:
         self.autoencoder.add(K.layers.UpSampling2D((2, 2)))
         self.autoencoder.add(K.layers.Conv2D(32, (3, 3), activation='relu', padding='same'))
         self.autoencoder.add(K.layers.UpSampling2D((2, 2)))
-        self.autoencoder.add(K.layers.Conv2D(1, (3, 3), activation='sigmoid', padding='same'))
+        self.autoencoder.add(K.layers.Conv2D(4, (3, 3), activation='sigmoid', padding='same'))
         self.autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
 
     def train(self, X_train):

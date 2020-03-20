@@ -8,7 +8,7 @@ class DataLoader:
     def fileToNumpy(self, path):
         self.X = np.array(pd.read_csv(path, header=None))
         self.X = np.reshape(self.X, (self.X.shape[0], 56, 56))
-        self.X = np.float(self.X)
+        ##self.X = np.float(self.X)
         self.X = np.divide(self.X, 255)
 
     def saveToFile(self, path):

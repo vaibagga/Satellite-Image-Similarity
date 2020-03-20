@@ -6,7 +6,7 @@ class AutoEncoder:
         self.autoencoder = K.models.Sequential()
 
         ## encoder
-        self.autoencoder.add(K.layers.Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(56, 56, 4)))
+        self.autoencoder.add(K.layers.Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(28, 28, 4)))
         self.autoencoder.add(K.layers.MaxPooling2D((2, 2), padding='same'))
         self.autoencoder.add(K.layers.Conv2D(32, (3, 3), activation='relu', padding='same'))
         self.autoencoder.add(K.layers.MaxPooling2D((2, 2), padding='same'))

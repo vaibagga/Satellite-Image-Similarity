@@ -9,7 +9,7 @@ def main():
     X_train = dl.fileToNumpy("X_train_sat4.csv")
     autoencoder = AutoEncoder()
     autoencoder.train(X_train)
-    autoencoder.save("autoencoder.h5")
+    autoencoder.saveModel("autoencoder.h5")
 
 
 

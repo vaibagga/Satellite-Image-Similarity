@@ -10,6 +10,7 @@ class DataLoader:
         self.X = np.reshape(self.X, (self.X.shape[0], 56, 56))
         ##self.X = np.float(self.X)
         self.X = np.divide(self.X, 255)
+        return self.X
 
     def saveToFile(self, path):
         np.save(path, self.X)

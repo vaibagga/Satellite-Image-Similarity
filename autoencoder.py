@@ -29,7 +29,7 @@ class AutoEncoder:
 
     def train(self, X_train, X_test):
         es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-        self.autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
+        self.autoencoder.compile(optimizer='adam', loss=K.losses.KLDivergence, metrics=['accuracy'])
         history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=10, verbose=1, callbacks=[es])
 
     def saveModel(self, path):
@@ -54,6 +54,50 @@ class AutoEncoder:
 
     def saveArchitecture(self):
         print(self.autoencoder.summary())
+
+class AutoencoderCNN(AutoEncoder):
+    def __init__(self):
+        self.autoencoder = K.models.Sequential()
+
+        ## encoder site
+        self.autoencoder.add(K.layers.Conv2D(32, kernel_size=3, activation='relu', input_shape=(28, 28, 4)))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Conv2D(32, kernel_size=3, activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Conv2D(32, kernel_size=5, strides=2, padding='same', activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Dropout(0.4))
+
+        self.autoencoder.add(K.layers.Conv2D(64, kernel_size=3, activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Conv2D(64, kernel_size=3, activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Conv2D(64, kernel_size=5, strides=2, padding='same', activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Dropout(0.4))
+
+        self.autoencoder.add(K.layers.Conv2D(64, kernel_size=4, activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Flatten())
+        self.autoencoder.add(K.layers.Dropout(0.4))
+        self.autoencoder.add(K.layers.Reshape((8, 8, 1)))
+
+
+        self.autoencoder.add(K.layers.Conv2DTranspose(64, kernel_size=5, strides=2, activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Conv2DTranspose(64, kernel_size=3, activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Conv2DTranspose(64, kernel_size=3, activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+
+        self.autoencoder.add(K.layers.Conv2DTranspose(32, kernel_size=5, activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Conv2DTranspose(32, kernel_size=3, activation='relu'))
+        self.autoencoder.add(K.layers.BatchNormalization())
+        self.autoencoder.add(K.layers.Conv2DTranspose(32, kernel_size=3, activation='relu'))
+
+        self.autoencoder.add(K.layers.Conv2D(4, kernel_size=4, activation='sigmoid'))
+
 
 
 def main():

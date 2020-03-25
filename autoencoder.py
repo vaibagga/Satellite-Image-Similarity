@@ -7,7 +7,7 @@ class AutoEncoder:
         ## autoencoder model
         self.autoencoder = K.models.Sequential()
 
-        ## encoder
+        ## encoder site
 
         self.autoencoder.add(K.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28,28,4)))
         self.autoencoder.add(K.layers.MaxPooling2D((2, 2)))
@@ -16,9 +16,12 @@ class AutoEncoder:
         self.autoencoder.add(K.layers.Conv2D(64, (3, 3), activation='relu'))
         self.autoencoder.add(K.layers.Flatten())
         #self.autoencoder.add(K.layers.Dense(49, activation='relu'))
+
         self.autoencoder.add(K.layers.Dense(49, activation='softmax'))
+
         #self.autoencoder.add(K.layers.Dense(49, activation='relu'))
-        # DECODER
+
+        # decoder site
         self.autoencoder.add(K.layers.Reshape((7, 7, 1)))
         self.autoencoder.add(K.layers.Conv2DTranspose(64, (3, 3), strides=2, activation='relu', padding='same'))
         self.autoencoder.add(K.layers.BatchNormalization())
@@ -57,6 +60,7 @@ class AutoEncoder:
 
 class AutoencoderCNN(AutoEncoder):
     def __init__(self):
+        AutoEncoder.__init__(self)
         self.autoencoder = K.models.Sequential()
 
         ## encoder site
@@ -83,6 +87,7 @@ class AutoencoderCNN(AutoEncoder):
         self.autoencoder.add(K.layers.Reshape((8, 8, 1)))
 
 
+        ## decoder site
         self.autoencoder.add(K.layers.Conv2DTranspose(64, kernel_size=5, strides=2, activation='relu'))
         self.autoencoder.add(K.layers.BatchNormalization())
         self.autoencoder.add(K.layers.Conv2DTranspose(64, kernel_size=3, activation='relu'))
@@ -97,6 +102,29 @@ class AutoencoderCNN(AutoEncoder):
         self.autoencoder.add(K.layers.Conv2DTranspose(32, kernel_size=3, activation='relu'))
 
         self.autoencoder.add(K.layers.Conv2D(4, kernel_size=4, activation='sigmoid'))
+
+class AutoencoderUpsample(AutoEncoder):
+    def __init__(self):
+        AutoEncoder.__init__(self)
+        self.autoencoder = K.models.Sequential()
+        self.autoencoder.add(K.layers.Conv2D(8, (3,3), padding='same', activation='relu'))
+        self.autoencoder.add(K.layers.Conv2D(8, (3, 3), padding='same', activation='relu'))
+        self.autoencoder.add(K.layers.MaxPooling2D((2,2)))
+        self.autoencoder.add(K.layers.Conv2D(16, (3,3), padding='same', activation='relu'))
+        self.autoencoder.add(K.layers.Conv2D(16, (3, 3), padding='same', activation='relu'))
+        self.autoencoder.add(K.layers.MaxPooling2D((2, 2)))
+        self.autoencoder.add(K.layers.Flatten())
+        self.autoencoder.add(K.layers.Dense(256))
+
+        self.autoencoder.add(K.layers.Dense(784))
+
+        self.autoencoder.add(K.layers.Reshape((16, 7, 7)))
+        self.autoencoder.add(K.layers.UpSampling2D((2,2)))
+        self.autoencoder.add(K.layers.Conv2D(16, (3,3), padding='same', activation='relu'))
+        self.autoencoder.add(K.layers.Conv2D(16, (3, 3), padding='same', activation='relu'))
+        self.autoencoder.add(K.layers.UpSampling2D((2, 2)))
+        self.autoencoder.add(K.layers.Conv2D(8, (3, 3), padding='same', activation='relu'))
+        self.autoencoder.add(K.layers.Conv2D(4, (3, 3), padding='same', activation='sigmoid'))
 
 
 

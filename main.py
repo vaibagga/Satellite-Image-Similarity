@@ -1,16 +1,23 @@
 import pandas as pd
 import numpy as np
 import tensorflow.keras as K
-from utils import DataLoader
+from utils import loadData
 from autoencoder import AutoEncoder
+from cnn import CNNClassifier
+import numpy as np
 
 def main():
-    dl = DataLoader()
-    X_train = dl.fileToNumpy("X_train_sat4.csv")
+    X_train, X_test, y_train, y_test = loadData("X_train_sat4.csv", "y_train_sat4.csv")
+    print("Data Loaded")
+    #model = CNNClassifier()
+    #model.train(X_train, y_train, X_test, y_test)
+    #model.saveModel("initial.h5")
     autoencoder = AutoEncoder()
-    autoencoder.train(X_train)
-    autoencoder.saveModel("autoencoder.h5")
-
+    autoencoder.train(X_train, X_test)
+    #autoencoder.showComparison(X_test[69])
+    autoencoder.saveModel("model.h5")
+    #autoencoder.loadModel("model.h5")
+    #autoencoder.showComparison(X_test[420])
 
 
 

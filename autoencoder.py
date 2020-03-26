@@ -30,6 +30,18 @@ class AutoEncoder:
         self.autoencoder.add(K.layers.Conv2DTranspose(32, (3, 3), activation='relu', padding='same'))
         self.autoencoder.add(K.layers.Conv2D(4, (3, 3), activation='sigmoid', padding='same'))
 
+    def getMiddleLayer(self):
+        for layer in self.autoencoder.layers:
+            if isinstance(layer, K.layers.Dense)
+                return layer
+
+
+    def getEncoderDecoder(self):
+        middleLayer = self.getMiddleLayer()
+        encoder = Model(inputs=self.autoencoder.input, middleLayer.output)
+        decoder = Model(inputs=middleLayer.output, outputs=self.autoencoder.output)
+        return encoder, decoder
+
     def train(self, X_train, X_test):
         es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
         self.autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])

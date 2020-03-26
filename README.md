@@ -1,7 +1,7 @@
 ## Satellite Image Encoding using Deep Autoencoders
 <img src="https://csc.lsu.edu/~saikat/deepsat/images/sat_img.png" align="center">
 <br>
-<br>
+<br>in
 This repository contains training script for image autoencoders for satellite image.
 <br>
 [Dataset Link](https://www.kaggle.com/crawford/deepsat-sat4)
@@ -14,3 +14,6 @@ This repository contains training script for image autoencoders for satellite im
 
 ### Training
 `$python main.py`
+
+### Model
+<img src="model.png" alt="model">

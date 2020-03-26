@@ -32,20 +32,21 @@ class AutoEncoder:
 
     def getMiddleLayer(self):
         for layer in self.autoencoder.layers:
-            if isinstance(layer, K.layers.Dense)
+            if isinstance(layer, K.layers.Dense):
                 return layer
 
 
-    def getEncoderDecoder(self):
+    def getEncoder(self):
         middleLayer = self.getMiddleLayer()
-        encoder = Model(inputs=self.autoencoder.input, middleLayer.output)
-        decoder = Model(inputs=middleLayer.output, outputs=self.autoencoder.output)
-        return encoder, decoder
+        encoder = K.models.Model(inputs=self.autoencoder.input, outputs=middleLayer.output)
+        #decoder = K.models.Model(inputs=middleLayer.output, outputs=self.autoencoder.output)
+        return encoder
 
     def train(self, X_train, X_test):
-        es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
+        es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
+        annealer = K.callbacks.LearningRateScheduler(lambda x: 1e-3 * 0.95 ** x)
         self.autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
-        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=10, verbose=1, callbacks=[es])
+        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=10, batch_size=64, verbose=1, callbacks=[es, annealer])
 
     def saveModel(self, path):
         self.autoencoder.save(path)

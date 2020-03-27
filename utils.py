@@ -12,6 +12,11 @@ def loadData(pathX, pathY, numRows=99999, split=0.33):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=split, random_state=42)
     return X_train, X_test, y_train, y_test
 
+def getCompressionEfficiency(X_train, encoder):
+    X_train_enc = encoder.predict(X_train)
+    return 1-Xz_train_enc.nbytes/X_train.nbytes
+
+
 def main():
     X_train, X_test, y_train, y_test = loadData("X_train_sat4.csv", "y_train_sat4.csv")
     print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)

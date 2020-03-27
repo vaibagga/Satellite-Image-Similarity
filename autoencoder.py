@@ -46,7 +46,7 @@ class AutoEncoder:
         es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
         annealer = K.callbacks.LearningRateScheduler(lambda x: 1e-3 * 0.95 ** x)
         self.autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
-        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=10, batch_size=64, verbose=1, callbacks=[es, annealer])
+        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=20, batch_size=64, verbose=1, callbacks=[es, annealer])
 
     def saveModel(self, path):
         self.autoencoder.save(path)

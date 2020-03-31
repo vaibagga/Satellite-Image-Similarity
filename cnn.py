@@ -2,6 +2,9 @@ import tensorflow.keras as K
 import matplotlib.pyplot as plt
 
 class CNNClassifier():
+    """
+    CNN for classifying image
+    """
     def __init__(self):
         self.model = K.models.Sequential()
         self.model.add(K.layers.Conv2D(32, kernel_size=3, activation='relu', input_shape=(28, 28, 4)))
@@ -27,6 +30,15 @@ class CNNClassifier():
         self.model.add(K.layers.Dense(4, activation='softmax'))
 
     def train(self, X_train, y_train, X_val, y_val, plot = True):
+        """
+
+        :param X_train: training features
+        :param y_train: training labels
+        :param X_val: validation features
+        :param y_val: validation labels
+        :param plot: plot loss curves
+        :return: None
+        """
         self.model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
         epochs = 50
         es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
@@ -54,6 +66,11 @@ class CNNClassifier():
             plt.show()
 
     def saveModel(self, path):
+        """
+
+        :param path: path to save the model
+        :return:
+        """
         self.model.save(path)
 
 def main():

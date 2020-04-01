@@ -20,10 +20,15 @@ random.seed(42)
 
 def main():
     X_train, X_test, y_train, y_test = loadData("X_train_sat4.csv", "y_train_sat4.csv")
-    print("Data Loaded")
 
-    autoencoder = AutoencoderUpsample()
-    #autoencoder.train(X_train, X_test)
+    num_features = [64, 128, 256, 512, 1024]
+    scores = []
+    for features in num_features:
+        print("Size of latent space =", features)
+        autoencoder = AutoencoderUpsample(features)
+        autoencoder.train(X_train, X_test)
+        scores.append(autoencoder.evaluate(X_test, X_test)[0])
+    plt.plot(num_features, scores)
     #autoencoder.saveModel("autoencoder_upsample_2.h5")
 
     autoencoder.loadModel("autoencoder_upsample_2.h5")
@@ -40,12 +45,11 @@ def main():
     ## we are forced to use a loop here bcoz memory was running out and we were too lazy to fix it
     #for i in tqdm(range(10)):
     #    cl = closest(X_train_enc, np.array([X_test_enc[i]]))
-    #    correct += (y_train[cl] == y_test[i])
-
-    models = ["SVM", "LR", "RF", "KNN", "DNN"]
-    for model in models:
-        clf = Classifier(model, autoencoder)
-        clf.train(X_train, y_train, X_test, y_test)
+    #    correct += (y_train[cl] == y_test[i]
+    #models = ["SVM", "LR", "RF", "KNN", "DNN"]
+    #for model in models:
+    #    clf = Classifier(model, autoencoder)
+    #    clf.train(X_train, y_train, X_test, y_test)
 
 
 

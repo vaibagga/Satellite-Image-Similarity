@@ -1,5 +1,6 @@
 import tensorflow.keras as K
 import matplotlib.pyplot as plt
+from utils import loadData
 
 class CNNClassifier():
     """
@@ -39,14 +40,14 @@ class CNNClassifier():
         :param plot: plot loss curves
         :return: None
         """
-        self.model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        self.model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         epochs = 50
         es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
         mc = K.callbacks.ModelCheckpoint('best_model.h5', monitor='val_acc', mode='max', verbose=0, save_best_only=True)
         annealer = K.callbacks.LearningRateScheduler(lambda x: 1e-3 * 0.95 ** x)
         history = self.model.fit(X_train, y_train, batch_size=64, epochs=epochs, callbacks=[annealer, es, mc], verbose=0,
                             validation_data=(X_val, y_val))
-
+        print(self.model.evaluate(X_test, y_test)[0])
         ## accuracy plot
         if plot:
             plt.plot(history.history['acc'])
@@ -75,6 +76,9 @@ class CNNClassifier():
 
 def main():
     cnn = CNNClassifier()
+    X_train, X_test, y_train, y_test = loadData("X_train_sat4.csv", "y_train_sat4.csv")
+    print("Data Loaded")
+    cnn.train(X_train, y_train, X_test, y_test)
 
 if __name__ == "__main__":
     main()

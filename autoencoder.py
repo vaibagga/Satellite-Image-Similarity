@@ -57,9 +57,8 @@ class AutoEncoder:
         :return:
         """
         es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
-        annealer = K.callbacks.LearningRateScheduler(lambda x: 1e-3 * 0.95 ** x)
         self.autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
-        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=20, batch_size=64, verbose=1, callbacks=[es, annealer])
+        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=50, batch_size=64, verbose=1, callbacks=[es])
 
     def saveModel(self, path):
         """
@@ -161,7 +160,7 @@ class AutoencoderUpsample(AutoEncoder):
     """
     Autoencoder using Upsampling
     """
-    def __init__(self):
+    def __init__(self, num_features):
         AutoEncoder.__init__(self)
 
         ## encoder site
@@ -173,7 +172,7 @@ class AutoencoderUpsample(AutoEncoder):
         self.autoencoder.add(K.layers.Conv2D(16, (3, 3), padding='same', activation='relu'))
         self.autoencoder.add(K.layers.MaxPooling2D((2, 2)))
         self.autoencoder.add(K.layers.Flatten())
-        self.autoencoder.add(K.layers.Dense(256))
+        self.autoencoder.add(K.layers.Dense(num_features))
 
         ## decoder site
         self.autoencoder.add(K.layers.Dense(784))

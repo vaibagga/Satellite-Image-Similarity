@@ -54,11 +54,12 @@ class AutoEncoder:
         trains the autoencoder model
         :param X_train: training data
         :param X_test: validation data
-        :return:
+        :return: loss and accuracy of model
         """
         es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
         self.autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
-        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=50, batch_size=64, verbose=1, callbacks=[es])
+        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=30, batch_size=64, verbose=0, callbacks=[es])
+        return self.autoencoder.evaluate(X_test, X_test)
 
     def saveModel(self, path):
         """

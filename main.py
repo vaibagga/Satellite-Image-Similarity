@@ -22,13 +22,12 @@ def main():
     X_train, X_test, y_train, y_test = loadData("X_train_sat4.csv", "y_train_sat4.csv")
 
     num_features = [64, 128, 256, 512, 1024]
-    scores = []
     for features in num_features:
         print("Size of latent space =", features)
         autoencoder = AutoencoderUpsample(features)
-        autoencoder.train(X_train, X_test)
-        scores.append(autoencoder.evaluate(X_test, X_test)[0])
-    plt.plot(num_features, scores)
+        loss, acc = autoencoder.train(X_train, X_test)
+        print("Loss =", loss, "Accuracy =", acc)
+
     #autoencoder.saveModel("autoencoder_upsample_2.h5")
 
     autoencoder.loadModel("autoencoder_upsample_2.h5")

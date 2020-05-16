@@ -40,6 +40,13 @@ class Classifier():
                         metrics=['accuracy'])
 
         self.encoder = autoencoder.getEncoder()
+    def saveArchitecture(self, path):
+        """
+        Saves an image of the model architecture
+        :return:
+        """
+        print(self.model.summary())
+        K.utils.plot_model(self.model, to_file=path, show_shapes=True)
 
     def train(self, X_train, y_train, X_test, y_test):
         """

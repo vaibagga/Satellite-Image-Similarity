@@ -1,6 +1,9 @@
 import tensorflow.keras as K
 import matplotlib.pyplot as plt
 import numpy as np
+import math
+from utils import PSNR
+
 
 class AutoEncoder:
     """
@@ -38,16 +41,31 @@ class AutoEncoder:
             if isinstance(layer, K.layers.Dense):
                 return layer
 
+    def getDecoderLayer(self):
+        """
 
+        :return: the layer to which the embedding is fed
+        """
+        found = False
+        for layer in self.autoencoder.layers:
+            if found:
+                return layer
+            if isinstance(layer, K.layers.Dense):
+                found = True
+
+    '''
     def getEncoder(self):
         """
 
         :return: the encoder network of the autoencoder
         """
         middleLayer = self.getMiddleLayer()
-        encoder = K.models.Model(inputs=self.autoencoder.input, outputs=middleLayer.output)
+        encoder = K.models.Model(   inputs=self.autoencoder.input, outputs=middleLayer.output)
         #decoder = K.models.Model(inputs=middleLayer.output, outputs=self.autoencoder.output)
         return encoder
+    '''
+
+
 
     def train(self, X_train, X_test):
         """
@@ -57,9 +75,11 @@ class AutoEncoder:
         :return: loss and accuracy of model
         """
         es = K.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
-        self.autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
-        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=30, batch_size=64, verbose=0, callbacks=[es])
-        return self.autoencoder.evaluate(X_test, X_test)
+        self.autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy', PSNR])
+        history = self.autoencoder.fit(X_train, X_train, validation_data=(X_test, X_test), epochs=30
+                                       , batch_size=32, verbose=1, callbacks=[es])
+        psnr = PSNR(X_test, self.autoencoder.predict(X_test))
+        return self.autoencoder.evaluate(X_test, X_test), psnr
 
     def saveModel(self, path):
         """
@@ -75,7 +95,10 @@ class AutoEncoder:
         :param path:
         :return:
         """
-        self.autoencoder = K.models.load_model(path)
+        dependencies = {
+            'PSNR': PSNR
+        }
+        self.autoencoder = K.models.load_model(path, custom_objects=dependencies)
 
     def showComparison(self, image):
         """
@@ -161,30 +184,41 @@ class AutoencoderUpsample(AutoEncoder):
     """
     Autoencoder using Upsampling
     """
-    def __init__(self, num_features):
+    def __init__(self, num_features=256):
         AutoEncoder.__init__(self)
 
         ## encoder site
-        self.autoencoder = K.models.Sequential()
-        self.autoencoder.add(K.layers.Conv2D(8, (3,3), padding='same', activation='relu', input_shape=(28,28,4)))
-        self.autoencoder.add(K.layers.Conv2D(8, (3, 3), padding='same', activation='relu'))
-        self.autoencoder.add(K.layers.MaxPooling2D((2,2)))
-        self.autoencoder.add(K.layers.Conv2D(16, (3,3), padding='same', activation='relu'))
-        self.autoencoder.add(K.layers.Conv2D(16, (3, 3), padding='same', activation='relu'))
-        self.autoencoder.add(K.layers.MaxPooling2D((2, 2)))
-        self.autoencoder.add(K.layers.Flatten())
-        self.autoencoder.add(K.layers.Dense(num_features))
+        input_img = K.layers.Input(shape=(28,28,4))
+
+        x = K.layers.Conv2D(8, (3,3), padding='same', activation='relu', input_shape=(28,28,4))(input_img)
+        x = K.layers.Conv2D(8, (3, 3), padding='same', activation='relu')(x)
+        x = K.layers.MaxPooling2D((2,2))(x)
+        x = K.layers.Conv2D(16, (3,3), padding='same', activation='relu')(x)
+        x = K.layers.Conv2D(16, (3, 3), padding='same', activation='relu')(x)
+        x = K.layers.MaxPooling2D((2, 2))(x)
+        x = K.layers.Flatten()(x)
+        encoded = K.layers.Dense(num_features)(x)
+        encoded_input = K.layers.Input(shape=(num_features,))
 
         ## decoder site
-        self.autoencoder.add(K.layers.Dense(784))
-        self.autoencoder.add(K.layers.Reshape((7, 7, 16)))
-        self.autoencoder.add(K.layers.UpSampling2D((2,2)))
-        self.autoencoder.add(K.layers.Conv2D(16, (3,3), padding='same', activation='relu'))
-        self.autoencoder.add(K.layers.Conv2D(16, (3, 3), padding='same', activation='relu'))
-        self.autoencoder.add(K.layers.UpSampling2D((2, 2)))
-        self.autoencoder.add(K.layers.Conv2D(8, (3, 3), padding='same', activation='relu'))
-        self.autoencoder.add(K.layers.Conv2D(4, (3, 3), padding='same', activation='sigmoid'))
+        x = K.layers.Dense(784)(encoded_input)
+        #self.autoencoder.add(K.layers.Dropout(0.2))
+        x = K.layers.Reshape((7, 7, 16))(x)
+        x = K.layers.UpSampling2D((2,2))(x)
+        x = K.layers.Conv2D(16, (3,3), padding='same', activation='relu')(x)
+        x = K.layers.Conv2D(16, (3, 3), padding='same', activation='relu')(x)
+        x = K.layers.UpSampling2D((2, 2))(x)
+        x = K.layers.Conv2D(8, (3, 3), padding='same', activation='relu')(x)
+        decoded = K.layers.Conv2D(4, (3, 3), padding='same', activation='sigmoid')(x)
+        self.encoder = K.models.Model(inputs=input_img, outputs=encoded)
+        self.decoder = K.models.Model(inputs=encoded_input, outputs=decoded)
+        self.autoencoder = K.models.Model(inputs=input_img, outputs=self.decoder(self.encoder(input_img)))
 
+    def getDecoder(self):
+        return self.decoder
+
+    def getEncoder(self):
+        return self.encoder
 
 
 def main():
